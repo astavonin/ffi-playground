@@ -1,2 +1,9 @@
 target
 *.swp
+Cargo.lock
+CMakeFiles
+CMakeCache.txt
+cpplib/Makefile
+cpplib/bin
+cmake_install.cmake
+

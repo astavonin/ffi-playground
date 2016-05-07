@@ -29,8 +29,8 @@ ENDIF(APPLE)
 
 set(cpp2rs_sources main.cpp)
 
-#add_library(${PROJECT_NAME} SHARED ${cpp2rs_sources})
-add_executable(${PROJECT_NAME} ${cpp2rs_sources})
+add_library(${PROJECT_NAME} SHARED ${cpp2rs_sources})
+#add_executable(${PROJECT_NAME} ${cpp2rs_sources})
 
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
