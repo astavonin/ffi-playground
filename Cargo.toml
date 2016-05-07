@@ -1,0 +1,9 @@
+[package]
+name = "ffiplayground"
+version = "0.1.0"
+authors = ["astavonin"]
+build = "build.rs"
+
+[dependencies]
+libc = "0.2.10"
+
