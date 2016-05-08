@@ -9,12 +9,12 @@ type ResultType = libc::c_int;
 
 #[link(name="cpp2rs")]
 extern {
-    fn foo_alloc(buff: *mut *mut DataType, size: *mut SizeType) -> ResultType;
-    fn foo_free(buff: *mut DataType);
+    fn foo_alloc(buff: *mut *const DataType, size: *mut SizeType) -> ResultType;
+    fn foo_free(buff: *const DataType);
 }
 
 struct Foo {
-    data:   *mut DataType,
+    data:   *const DataType,
     len:    SizeType
 }
 
