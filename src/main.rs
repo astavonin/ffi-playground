@@ -9,22 +9,24 @@ type ResultType = libc::c_int;
 
 #[link(name="cpp2rs")]
 extern {
-    fn foo_alloc(buff: *mut *const DataType, size: *mut SizeType) -> ResultType;
+    fn foo_alloc(key: ResultType, buff: *mut *const DataType, size: *mut SizeType) -> ResultType;
     fn foo_free(buff: *const DataType);
 }
 
 struct Foo {
     data:   *const DataType,
-    len:    SizeType
+    len:    SizeType,
+    err:    ResultType
 }
 
 impl Foo {
     fn new() -> Foo {
         let mut foo = Foo {
             data: ptr::null_mut(),
-            len: 0
+            len: 0,
+            err: 0
         };
-        unsafe { foo_alloc(&mut foo.data, &mut foo.len) };
+        foo.err = unsafe { foo_alloc(0, &mut foo.data, &mut foo.len) };
         return foo;
     }
 
@@ -41,10 +43,41 @@ impl Drop for Foo {
     }
 }
 
+fn allocate_foo(key: ResultType) -> Result<&'static [DataType], ResultType> {
+    let mut data: *const DataType = ptr::null_mut();
+    let mut len: SizeType = 0;
+    match unsafe { foo_alloc(key, &mut data, &mut len) } {
+        0 => {
+            Ok(unsafe { slice::from_raw_parts(data, len as usize) })
+        },
+        err @ _ => {
+            Err(err)
+        }
+    }
+}
+
+fn free_foo(arr: &[DataType]) {
+    unsafe {
+        foo_free(arr.as_ptr());
+    }
+}
+
 fn main() {
     let foo = Foo::new();
     for (i, item) in foo.as_slice().iter().enumerate() {
         println!("{}:\t{}", i, item);
+    }
+
+    match allocate_foo(0) {
+        Ok(foo_arr) => {
+            for (i, item) in foo_arr.iter().enumerate() {
+                println!("{}:\t{}", i, item);
+            }
+            free_foo(foo_arr);
+        },
+        Err(err_code) => {
+            println!("Error {}", err_code);
+        }
     }
 }
 

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -6,18 +7,23 @@ extern "C" {
 
 static const int BUFF_LEN=5;
 
-int foo_alloc(int** data, int* len)
+int foo_alloc(int key, int** data, int* len)
 {
     *len = BUFF_LEN;
     *data = (int*)calloc(BUFF_LEN, sizeof(int));
     for (int i = 0; i < BUFF_LEN; ++i) {
         (*data)[i] = i*i;
     }
-    return 0;
+
+    printf("allocated for %d with addr %x\n", key, *data);
+
+    return key;
 }
 
 void foo_free(int *data)
 {
+    printf("free with addr %x\n", data);
+
     free(data);
 }
 
