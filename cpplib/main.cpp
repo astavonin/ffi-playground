@@ -16,16 +16,16 @@ int foo_alloc(int** data, int* len)
     return 0;
 }
 
-void foo_free(int **data, int len)
+void foo_free(int *data)
 {
-    free(*data);
+    free(data);
 }
 
 #ifdef __cplusplus
 }
 #endif
 
-#if 1
+#if 0
 
 #include <iostream>
 #include <iomanip>
@@ -41,7 +41,7 @@ int main(void)
     for (int i = 0; i < len; ++i) {
         std::cout << arr[i] << std::endl;
     }
-    foo_free(&arr, len);
+    foo_free(arr);
 
     return 0;
 }

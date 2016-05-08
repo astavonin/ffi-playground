@@ -1,6 +1,7 @@
 #![feature(link_args)]
 
 extern crate libc;
+use std::{slice, ptr};
 
 type DataType = libc::c_int;
 type SizeType = libc::c_int;
@@ -9,24 +10,41 @@ type ResultType = libc::c_int;
 #[link(name="cpp2rs")]
 extern {
     fn foo_alloc(buff: *mut *mut DataType, size: *mut SizeType) -> ResultType;
-    fn foo_free(buff: *mut *mut DataType, size: SizeType);
+    fn foo_free(buff: *mut DataType);
 }
 
-fn foo_alloc_ex() -> Option<Vec<DataType>> {
+struct Foo {
+    data:   *mut DataType,
+    len:    SizeType
+}
 
-    let mut buff: *mut DataType = std::ptr::null_mut();
-    let mut len: SizeType = 0;
-    let ret = unsafe { foo_alloc(&mut buff, &mut len) };
-
-    if ret == 0 {
-        println!("Buffer len {}", len);
-    } else {
-        println!("Failed with code {}", ret);
+impl Foo {
+    fn new() -> Foo {
+        let mut foo = Foo {
+            data: ptr::null_mut(),
+            len: 0
+        };
+        unsafe { foo_alloc(&mut foo.data, &mut foo.len) };
+        return foo;
     }
-    return None;
+
+    fn as_slice(&self) -> &[DataType] {
+        return unsafe { slice::from_raw_parts(self.data, self.len as usize) };
+    }
+}
+
+impl Drop for Foo {
+    fn drop(&mut self) {
+        if self.data != ptr::null_mut() {
+            unsafe { foo_free(self.data) }
+        }
+    }
 }
 
 fn main() {
-    foo_alloc_ex();
-    println!("Hello, world!");
+    let foo = Foo::new();
+    for (i, item) in foo.as_slice().iter().enumerate() {
+        println!("{}:\t{}", i, item);
+    }
 }
+
