@@ -2,6 +2,8 @@
 
 extern crate libc;
 use std::{slice, ptr};
+use std::os::raw;
+use std::ffi::CStr;
 
 type DataType = libc::c_int;
 type SizeType = libc::c_int;
@@ -11,6 +13,7 @@ type ResultType = libc::c_int;
 extern {
     fn foo_alloc(key: ResultType, buff: *mut *const DataType, size: *mut SizeType) -> ResultType;
     fn foo_free(buff: *const DataType);
+    fn foo_get_info(key: ResultType) -> *const raw::c_char;
 }
 
 struct Foo {
@@ -62,6 +65,16 @@ fn free_foo(arr: &[DataType]) {
     }
 }
 
+fn get_info(key: ResultType) -> &'static str {
+    unsafe {
+        let raw_info = CStr::from_ptr(foo_get_info(key));
+        match raw_info.to_str() {
+            Ok(s) => s,
+            Err(_) => "Unable to load data"
+        }
+    }
+}
+
 fn main() {
     let foo = Foo::new();
     for (i, item) in foo.as_slice().iter().enumerate() {
@@ -79,5 +92,7 @@ fn main() {
             println!("Error {}", err_code);
         }
     }
+
+    println!("Info: {}", get_info(1));
 }
 

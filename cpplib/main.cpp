@@ -27,6 +27,11 @@ void foo_free(int *data)
     free(data);
 }
 
+char* foo_get_info(int key)
+{
+    return "Some data";
+}
+
 #ifdef __cplusplus
 }
 #endif
